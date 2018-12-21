@@ -31,4 +31,6 @@ docker exec -it workshop-mysql mysql -uroot -proot
 
 
 Prod:
+Use TF to create Azure service
 https://azure.microsoft.com/en-us/services/mysql/
+Then use TF to register service pointing to that endpoint?

@@ -1,9 +1,19 @@
 from flask import Flask
 import configparser
+import db
 
-
+DATABASE = 'DATABASE'
 
 app = Flask(__name__)
 
+def read_config():
+  conf = configparser.ConfigParser()
+  with open('config.ini') as f:
+    conf.read_file(f)
+  return conf
+
 if __name__ == '__main__':
-      app.run(host='0.0.0.0', port=8080)
+  conf = read_config()
+  db.init_db(uri=conf['DATABASE']['Address'], prt=conf['DATABASE']['Port'], uname=conf['DATABASE']['User'], pw=conf['DATABASE']['Password'], db=conf['DATABASE']['Database'])
+
+  app.run(host='0.0.0.0', port=5000)
