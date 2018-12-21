@@ -88,10 +88,10 @@ We need to enable the transit engine, and create a key for our application to us
 vault secrets enable -path=lob_a/workshop/transit transit
 
 # Create our customer key
-vault write -f lob_a/workshop/transit/keys/customer_key
+vault write -f lob_a/workshop/transit/keys/customer-key
 
 # Create our archive key to demonstrate multiple keys
-vault write -f lob_a/workshop/transit/keys/archive_key
+vault write -f lob_a/workshop/transit/keys/archive-key
 
 
 ```
