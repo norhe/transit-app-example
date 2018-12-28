@@ -48,6 +48,8 @@ class DbClient:
             if e[0] == 2006:
                 print('Error encountered: {}.  Reconnecting db...'.format(e))
                 self.init_db(self.uri, self.port, self.username, self.password, self.db)
+                cursor = self.conn.cursor()
+                cursor.execute(sql)
                 return 0
 
     def connect_db(self, uri, prt, uname, pw):
@@ -91,9 +93,11 @@ class DbClient:
         return self.get_customer_records()
 
     def update_customer_record(self, record):
-        statement = '''INSERT INTO `customers` (`birth_date`, `first_name`, `last_name`, `create_date`, `social_security_number`, `address`, `salary`) 
-                        VALUES  ("{}", "{}", "{}", "{}", "{}", "{}", "{}");'''.format(record['birth_date'], record['first_name'], record['last_name'], record['create_date'], record['ssn'], record['address'], record['salary'] )
+        statement = '''UPDATE `customers`  
+                       SET birth_date = "{}", first_name = "{}", last_name = "{}", social_security_number = "{}", address = "{}", salary = "{}"
+                       WHERE cust_no = {};'''.format(record['birth_date'], record['first_name'], record['last_name'], record['ssn'], record['address'], record['salary'], record['cust_no'] )
         print(statement)
         cursor = self.conn.cursor()
         self._execute_sql(statement, cursor)
+        self.conn.commit()
         return self.get_customer_records()

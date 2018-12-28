@@ -34,6 +34,17 @@ def create_customer():
     print(new_record)
     return json.dumps(new_record)
 
+@app.route('/customers', methods=['PUT'])
+def update_customer():
+    global dbc
+    print(dict(request.form))
+    customer = {k:v[0] for (k,v) in dict(request.form).items()}
+    print(customer)
+    new_record = dbc.update_customer_record(customer)
+    print(new_record)
+    return json.dumps(new_record)
+
+
 if __name__ == '__main__':
   conf = read_config()
   dbc = db_client.DbClient(uri=conf['DATABASE']['Address'], prt=conf['DATABASE']['Port'], uname=conf['DATABASE']['User'], pw=conf['DATABASE']['Password'], db=conf['DATABASE']['Database'])
