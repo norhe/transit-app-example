@@ -6,8 +6,8 @@ import json
 
 import db_client
 
-DATABASE = 'DATABASE'
 dbc = None
+vclient = None
 
 app = Flask(__name__)
 
@@ -47,6 +47,18 @@ def update_customer():
 
 if __name__ == '__main__':
   conf = read_config()
-  dbc = db_client.DbClient(uri=conf['DATABASE']['Address'], prt=conf['DATABASE']['Port'], uname=conf['DATABASE']['User'], pw=conf['DATABASE']['Password'], db=conf['DATABASE']['Database'])
 
-  app.run(host='0.0.0.0', port=5000)
+  try:
+    dbc = db_client.DbClient(uri=conf['DATABASE']['Address'], prt=conf['DATABASE']['Port'], uname=conf['DATABASE']['User'], pw=conf['DATABASE']['Password'], db=conf['DATABASE']['Database'])
+
+    if conf['VAULT']['Enabled'].lower() == 'true':
+      dbc.vault_addr = conf['VAULT']['Address']
+      dbc.vault_token = conf['VAULT']['Token']
+      dbc.vault_keypath = conf['VAULT']['KeyPath']
+      dbc.vault_keyname = conf['VAULT']['KeyName']
+
+    app.run(host='0.0.0.0', port=5000)
+
+  except Exception as e:
+    print("There was an error starting the server: {}".format(e))
+  
