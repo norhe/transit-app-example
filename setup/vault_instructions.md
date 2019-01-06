@@ -92,6 +92,44 @@ vault write -f lob_a/workshop/transit/keys/customer-key
 
 # Create our archive key to demonstrate multiple keys
 vault write -f lob_a/workshop/transit/keys/archive-key
-
-
 ```
+
+## Client
+
+The backend client uses [hvac](https://github.com/hvac/hvac) to interact wiith Vault.  Install it like so:
+```
+pip3 install hvac
+```
+
+### Explanation
+
+Imagine we have a firm with customer data.  We want to encrypt that data in the database such that we protect it from both external and internal attackers.  Many databases support encrypting the raw files using things like TDE.  However, this only protects us from someone stealing the bits on disk.  If someone like a DBA, app developer, HVAC technician, etc, can read from the database than file level encryption does not help.
+
+Using Vault's Encryption as a Service (transit secret engine), we can protect the data from both vectors.  If the raw data is stolen it will be of no value, and internal threats with read access will not be able to surreptitiously access and steal the data.
+
+This is a simple example, but the principles herein could be broadly applied to databases, files on disk, data in object storage, etc.  It is a flexible tool for transparently encrypting both arbitrary chunks of data using the API, and larger files using the datakey pattern.
+
+In this example we have the following table:
+```
++------------------------+--------------+------+-----+---------+----------------+
+| Field                  | Type         | Null | Key | Default | Extra          |
++------------------------+--------------+------+-----+---------+----------------+
+| cust_no                | int(11)      | NO   | PRI | NULL    | auto_increment |
+| birth_date             | varchar(255) | NO   |     | NULL    |                |
+| first_name             | varchar(32)  | NO   |     | NULL    |                |
+| last_name              | varchar(32)  | NO   |     | NULL    |                |
+| create_date            | varchar(255) | NO   |     | NULL    |                |
+| social_security_number | varchar(16)  | NO   |     | NULL    |                |
+| address                | varchar(255) | NO   |     | NULL    |                |
+| salary                 | varchar(16)  | NO   |     | NULL    |                |
++------------------------+--------------+------+-----+---------+----------------+
+```
+
+We want our applications to be able to use this data as necessary, but for the data in the database to be protected as discussed previously.  We want to encrypt the birth_date, social_security_number, address, and salary fields.  
+
+N.B. The output of an encrypted record may consist of more characters than the input string.  For instance, if one encrypts something like a social security number (123-45-6789) the output would look something like:
+```
+vault:v1:7gJQbolfH6KgyxJ4VnkGbO7YTig5waMq96IBGKJRH37T
+```
+
+Database schemas may need to be adjusted to account for the longer values.  For instance, if you configured your database with a value of varchar(11) then the resultant encrypted value would not fit in that column. 
