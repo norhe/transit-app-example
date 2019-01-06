@@ -3,6 +3,7 @@ from mysql.connector import errorcode
 import datetime
 import hvac
 import base64
+import logging
 
 customer_table = '''
 CREATE TABLE IF NOT EXISTS `customers` (
@@ -16,6 +17,8 @@ CREATE TABLE IF NOT EXISTS `customers` (
     `salary` varchar(255) NOT NULL,
     PRIMARY KEY (`cust_no`)
 ) ENGINE=InnoDB;'''
+
+logger = logging.getLogger(__name__)
 
 class DbClient:
     conn = None
@@ -34,10 +37,10 @@ class DbClient:
         self.db = db
         self.connect_db(uri, prt, uname, pw)
         cursor = self.conn.cursor()
-        print("Preparing database {}...".format(db))
+        logger.info("Preparing database {}...".format(db))
         cursor.execute('CREATE DATABASE IF NOT EXISTS `{}`'.format(db))
         cursor.execute('USE `{}`'.format(db))
-        print("Preparing customer table...")
+        logger.info("Preparing customer table...")
         cursor.execute(customer_table)
         self.conn.commit()
         cursor.close()
@@ -45,9 +48,10 @@ class DbClient:
     # Later we will check to see if this is None to see whether to use Vault or not
     def init_vault(self, addr, token, path, key_name):
         if not addr or not token:
+            logger.warn('Skipping initialization...')
             return
         else:
-            print("Connecting to vault server: {}".format(addr))
+            logger.warn("Connecting to vault server: {}".format(addr))
             self.vault_client = hvac.Client(url=addr, token=token)
             self.key_name = key_name
             self.mount_point = path
@@ -60,15 +64,15 @@ class DbClient:
                 name = self.key_name,
                 plaintext = base64.b64encode(value.encode()).decode('ascii')
             )
-            print(response)
+            logger.debug('Response: {}'.format(response))
             return response['data']['ciphertext']
         except Exception as e:
-            print('There was an error encrypting the data: {}'.format(e))
+            logger.error('There was an error encrypting the data: {}'.format(e))
 
     # The data returned from Transit is base64 encoded so we decode it before returning
     def decrypt(self, value):
         # support unencrypted messages on first read
-        #print('Decrypting {}'.format(value))
+        logger.debug('Decrypting {}'.format(value))
         if not value.startswith('vault:v'):
             return value
         else: 
@@ -78,14 +82,14 @@ class DbClient:
                     name = self.key_name,
                     ciphertext = value
                 )
-                print(response)
+                logger.debug('Response: {}'.format(response))
                 plaintext = response['data']['plaintext']
-                print(plaintext)
+                logger.debug('Plaintext (base64 encoded): {}'.format(plaintext))
                 decoded = base64.b64decode(plaintext).decode()
-                print(decoded)
+                logger.debug('Decoded: {}'.format(decoded))
                 return decoded
             except Exception as e:
-                print('There was an error encrypting the data: {}'.format(e))
+                logger.error('There was an error encrypting the data: {}'.format(e))
     
     # Long running apps may expire the DB connection
     def _execute_sql(self,sql,cursor):
@@ -94,23 +98,23 @@ class DbClient:
             return 1
         except mysql.connector.errors.OperationalError as e:            
             if e[0] == 2006:
-                print('Error encountered: {}.  Reconnecting db...'.format(e))
+                logger.error('Error encountered: {}.  Reconnecting db...'.format(e))
                 self.init_db(self.uri, self.port, self.username, self.password, self.db)
                 cursor = self.conn.cursor()
                 cursor.execute(sql)
                 return 0
 
     def connect_db(self, uri, prt, uname, pw):
-        print('Connecting to {} with username {} and password {}'.format(uri, uname, pw))
+        logger.debug('Connecting to {} with username {} and password {}'.format(uri, uname, pw))
         try:
             self.conn = mysql.connector.connect(user=uname, password=pw, host=uri, port=prt)
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                print("Something is wrong with your user name or password")
+                logger.error("Something is wrong with your user name or password")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("Database does not exist")
+                logger.error("Database does not exist")
             else:
-                print(err)
+                logger.error(err)
 
     def get_customer_records(self, num = None):
         if num is None:
@@ -137,7 +141,7 @@ class DbClient:
                     r['salary'] = self.decrypt(r['salary'])
                 results.append(r)
             except Exception as e:
-                print('There was an error retrieving the record: {}'.format(e))
+                logger.error('There was an error retrieving the record: {}'.format(e))
         return results
 
     def insert_customer_record(self, record):
@@ -147,7 +151,7 @@ class DbClient:
         else:
             statement = '''INSERT INTO `customers` (`birth_date`, `first_name`, `last_name`, `create_date`, `social_security_number`, `address`, `salary`) 
                             VALUES  ("{}", "{}", "{}", "{}", "{}", "{}", "{}");'''.format(self.encrypt(record['birth_date']), record['first_name'], record['last_name'], record['create_date'], self.encrypt(record['ssn']), self.encrypt(record['address']), self.encrypt(record['salary']) )
-        print(statement)
+        logger.debug('SQL Statement: {}'.format(statement))
         cursor = self.conn.cursor()
         self._execute_sql(statement, cursor)
         self.conn.commit()
@@ -162,7 +166,7 @@ class DbClient:
             statement = '''UPDATE `customers`  
                        SET birth_date = "{}", first_name = "{}", last_name = "{}", social_security_number = "{}", address = "{}", salary = "{}"
                        WHERE cust_no = {};'''.format(self.encrypt(record['birth_date']), record['first_name'], record['last_name'], self.encrypt(record['ssn']), self.encrypt(record['address']), self.encrypt(record['salary']), record['cust_no'] )
-        print(statement)
+        logger.debug('Sql Statement: {}'.format(statement))
         cursor = self.conn.cursor()
         self._execute_sql(statement, cursor)
         self.conn.commit()
