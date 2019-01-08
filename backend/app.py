@@ -43,6 +43,8 @@ def create_customer():
     logging.debug("Form Data: {}".format(dict(request.form)))
     customer = {k:v[0] for (k,v) in dict(request.form).items()}
     logging.debug('Customer: {}'.format(customer))
+    if 'create_date' not in customer.keys():
+      customer['create_date'] = datetime.now().isoformat()
     new_record = dbc.insert_customer_record(customer)
     logging.debug('New Record: {}'.format(new_record))
     return json.dumps(new_record)
@@ -64,7 +66,6 @@ def index():
 @app.route('/records', methods=['GET'])
 def records():
     records = json.loads(get_customers())
-    print(type(records))
     return render_template('records.html', results = records)
 
 @app.route('/dbview', methods=['GET'])
@@ -73,6 +74,14 @@ def dbview():
     records = dbc.get_customer_records(10, raw = True)
     return render_template('dbview.html', results = records)
 
+@app.route('/add', methods=['GET'])
+def add():
+    return render_template('add.html')
+
+@app.route('/add', methods=['POST'])
+def add_submit():
+    records = create_customer()
+    return render_template('records.html', results = json.loads(records))
 
 if __name__ == '__main__':
   conf = read_config()
