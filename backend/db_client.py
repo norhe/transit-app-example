@@ -118,7 +118,7 @@ class DbClient:
 
     def get_customer_records(self, num = None, raw = None):
         if num is None:
-            num = 10
+            num = 50
         statement = 'SELECT * FROM `customers` LIMIT {}'.format(num)
         cursor = self.conn.cursor()
         self._execute_sql(statement, cursor)

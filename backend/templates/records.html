@@ -11,6 +11,20 @@
   </div>
 </div>
 
+{% if record_added %}
+  <div class="notification is-success">
+    <button class="delete"></button>
+    Record successfully added
+  </div>
+{% endif %}
+
+{% if record_updated %}
+  <div class="notification is-info">
+    <button class="delete"></button>
+    Record successfully updated
+</div>
+{% endif %}
+
   <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
     <thead>
       <tr>

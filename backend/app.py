@@ -33,7 +33,7 @@ def read_config():
 @app.route('/customers', methods=['GET'])
 def get_customers():
     global dbc
-    customers = dbc.get_customer_records(10)
+    customers = dbc.get_customer_records()
     logger.debug('Customers: {}'.format(customers))
     return json.dumps(customers)
 
@@ -71,7 +71,7 @@ def records():
 @app.route('/dbview', methods=['GET'])
 def dbview():
     global dbc
-    records = dbc.get_customer_records(10, raw = True)
+    records = dbc.get_customer_records(raw = True)
     return render_template('dbview.html', results = records)
 
 @app.route('/add', methods=['GET'])
@@ -81,7 +81,7 @@ def add():
 @app.route('/add', methods=['POST'])
 def add_submit():
     records = create_customer()
-    return render_template('records.html', results = json.loads(records))
+    return render_template('records.html', results = json.loads(records), record_added = True)
 
 @app.route('/update', methods=['GET'])
 def update():
@@ -90,7 +90,7 @@ def update():
 @app.route('/update', methods=['POST'])
 def update_submit():
     records = update_customer()
-    return render_template('records.html', results = json.loads(records))
+    return render_template('records.html', results = json.loads(records), record_updated = True)
 
 if __name__ == '__main__':
   conf = read_config()
