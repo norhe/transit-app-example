@@ -83,6 +83,15 @@ def add_submit():
     records = create_customer()
     return render_template('records.html', results = json.loads(records))
 
+@app.route('/update', methods=['GET'])
+def update():
+    return render_template('update.html')
+
+@app.route('/update', methods=['POST'])
+def update_submit():
+    records = update_customer()
+    return render_template('records.html', results = json.loads(records))
+
 if __name__ == '__main__':
   conf = read_config()
   
