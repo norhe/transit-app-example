@@ -1,4 +1,5 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
+
 from datetime import datetime
 import configparser
 import json
@@ -21,6 +22,7 @@ log_level = {
 logger = logging.getLogger('app')
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 def read_config():
   conf = configparser.ConfigParser()
@@ -54,6 +56,22 @@ def update_customer():
     new_record = dbc.update_customer_record(customer)
     logging.debug('New Record: {}'.format(new_record))
     return json.dumps(new_record)
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
+@app.route('/records', methods=['GET'])
+def records():
+    records = json.loads(get_customers())
+    print(type(records))
+    return render_template('records.html', results = records)
+
+@app.route('/dbview', methods=['GET'])
+def dbview():
+    global dbc
+    records = dbc.get_customer_records(10, raw = True)
+    return render_template('dbview.html', results = records)
 
 
 if __name__ == '__main__':

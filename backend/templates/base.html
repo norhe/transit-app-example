@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Protect Your Data!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  </head>
+  <body>
+  
+    <nav class="navbar has-shadow" role="navigation" aria-label="main navigation">
+      <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="https://vaultproject.io">
+              <img src="https://s3.amazonaws.com/hashicorp-marketing-web-assets/brand/Vault_VerticalLogo_FullColor.B1xPC0pSax.svg" width="112" height="28">
+            </a>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-start">
+              <a class="navbar-item is-selected" href="/">
+                Home
+              </a>
+
+              <a class="navbar-item" href="records">
+                Records
+              </a>
+        
+              <a class="navbar-item" href="dbview">
+                Database View
+              </a>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                  <div class="buttons">
+                    <a class="button is-success">
+                      <strong>Add Record</strong>
+                    </a>
+                  </div>
+                </div>
+              </div>
+        </div>
+    </nav>
+  
+  <section class="section has-background-grey-lighter">
+    <div class="container ">
+        {% block content %}{% endblock %}
+      
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="content has-text-centered">
+      <p>
+        <strong>Vault by Hashicorp</strong>. <br> <a href="https://learn.hashicorp.com/vault/encryption-as-a-service/eaas-transit"> Encryption as a Service</a> using <br> the <a href="https://www.vaultproject.io/docs/secrets/transit/index.html">transit secret engine.</a> 
+      </p>
+    </div>
+  </footer>
+  </body>
+</html>

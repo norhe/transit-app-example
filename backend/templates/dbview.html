@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+
+
+#termview {
+  background-color: #163B59
+}
+
+#dbview {
+  font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+  border: dotted white;
+  width: 100%;
+  
+}
+
+#dbview th {
+  padding: 8px;
+  border: 1px solid white;
+  
+}
+
+#dbview td {
+  border: 1px solid #ddd;
+  padding: 4px;
+}
+
+#dbview tr:nth-child(even){background-color: #f2f2f2;}
+
+#dbview tr:hover {background-color: #ddd;}
+
+#dbview th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #163B59;
+  color: white;
+}
+</style>
+  <section>
+    <div class="container" style="overflow-x:auto">
+      <h2 class="title">Raw database results, i.e.</h2>
+      <h2 class="title">SELECT * FROM `customers`;</h2>
+      <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th>cust_no</th>
+            <th>birth_date</th>
+            <th>first_name</th>
+            <th>last_name</th>
+            <th>create_date</th>
+            <th>social_security_number</th>
+            <th>address</th>
+            <th>salary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in results %}
+          <tr>
+            <td>{{ record['customer_number'] }}</td>
+            <td>{{ record['birth_date'] }}</td>
+            <td>{{ record['first_name'] }}</td>
+            <td>{{ record['last_name'] }}</td>
+            <td>{{ record['create_date'] }}</td>
+            <td>{{ record['ssn'] }}</td>
+            <td>{{ record['address'] }}</td>
+            <td>{{ record['salary'] }}</td>
+          </tr>
+          {% endfor %}
+          
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

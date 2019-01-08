@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+  
+<div class="tile is-ancestor">
+  <div class="tile is-vertical is-parent">
+    <div class="tile is-child box">
+      <p class="title">Application Data</p>
+      <p>This view represents our application view.  Transit protects data "in motion" meaning that to users (and applications) the encryption and decryption is largely invisible.</p>
+    </div>
+  </div>
+</div>
+
+  <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+    <thead>
+      <tr>
+        <th><abbr title="Customer Number">Cust_no</th>
+        <th><abbr title="First Name">First</th>
+        <th><abbr title="Last Name">Last</th>
+        <th><abbr title="Social Security Number">SSN</th>
+        <th><abbr title="Address">Addr</th>
+        <th><abbr title="Birthdate">Bday</th>
+        <th><abbr title="Member Since">Created</th>
+        <th><abbr title="Annual Salary">Salary</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in results %}
+      <tr>
+        <td>{{ record['customer_number'] }}</td>
+        <td>{{ record['first_name'] }}</td>
+        <td>{{ record['last_name'] }}</td>
+        <td>{{ record['ssn'] }}</td>
+        <td>{{ record['address'] }}</td>
+        <td>{{ record['birth_date'] }}</td>
+        <td>{{ record['create_date'] }}</td>
+        <td>{{ record['salary'] }}</td>
+      </tr>
+      {% endfor %}
+      
+    </tbody>
+  </table>
+    
+{% endblock %}

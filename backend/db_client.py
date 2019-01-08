@@ -116,7 +116,7 @@ class DbClient:
             else:
                 logger.error(err)
 
-    def get_customer_records(self, num = None):
+    def get_customer_records(self, num = None, raw = None):
         if num is None:
             num = 10
         statement = 'SELECT * FROM `customers` LIMIT {}'.format(num)
@@ -134,7 +134,7 @@ class DbClient:
                 r['ssn'] = row[5]
                 r['address'] = row[6]
                 r['salary'] = row[7]
-                if self.vault_client is not None:
+                if self.vault_client is not None and not raw:
                     r['birth_date'] = self.decrypt(r['birth_date'])
                     r['ssn'] = self.decrypt(r['ssn'])
                     r['address'] = self.decrypt(r['address'])
