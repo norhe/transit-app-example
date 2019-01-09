@@ -40,8 +40,15 @@
 </style>
   <section>
     <div class="container" style="overflow-x:auto">
-      <h2 class="title">Raw database results, i.e.</h2>
-      <h2 class="title">SELECT * FROM `customers`;</h2>
+      <div class="tile is-ancestor">
+        <div class="tile is-vertical is-parent">
+          <div class="tile is-child box">
+            <p class="title">Raw Database Results</p>
+            <p>SELECT * FROM `customers`;</p>
+          </div>
+        </div>
+      </div>
+
       <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
         <thead>
           <tr>
