@@ -41,7 +41,7 @@ def get_customers():
 def create_customer():
     global dbc
     logging.debug("Form Data: {}".format(dict(request.form)))
-    customer = {k:v[0] for (k,v) in dict(request.form).items()}
+    customer = {k:v for (k,v) in dict(request.form).items()}
     logging.debug('Customer: {}'.format(customer))
     if 'create_date' not in customer.keys():
       customer['create_date'] = datetime.now().isoformat()
@@ -53,7 +53,7 @@ def create_customer():
 def update_customer():
     global dbc
     logging.debug('Form Data: {}'.format(dict(request.form)))
-    customer = {k:v[0] for (k,v) in dict(request.form).items()}
+    customer = {k:v for (k,v) in dict(request.form).items()}
     logging.debug('Customer: {}'.format(customer))
     new_record = dbc.update_customer_record(customer)
     logging.debug('New Record: {}'.format(new_record))
@@ -101,12 +101,29 @@ if __name__ == '__main__':
   )
 
   try:
-    dbc = db_client.DbClient(uri=conf['DATABASE']['Address'], prt=conf['DATABASE']['Port'], uname=conf['DATABASE']['User'], pw=conf['DATABASE']['Password'], db=conf['DATABASE']['Database'])
+    dbc = db_client.DbClient()
 
     if conf.has_section('VAULT'):
       if conf['VAULT']['Enabled'].lower() == 'true':
         dbc.init_vault(addr=conf['VAULT']['Address'], token=conf['VAULT']['Token'], path=conf['VAULT']['KeyPath'], key_name=conf['VAULT']['KeyName'])
-
+        if conf['VAULT']['DynamicDBCreds'].lower() == 'true':
+          logger.debug('db_auth')
+          dbc.vault_db_auth(conf['VAULT']['DynamicDBCredsPath'])
+          dbc.init_db(uri=conf['DATABASE']['Address'], 
+          prt=conf['DATABASE']['Port'], 
+          uname=dbc.username, 
+          pw=dbc.password, 
+          db=conf['DATABASE']['Database']
+          )
+      else:
+        dbc.init_db(
+          uri=conf['DATABASE']['Address'], 
+          prt=conf['DATABASE']['Port'], 
+          uname=conf['DATABASE']['User'], 
+          pw=conf['DATABASE']['Password'], 
+          db=conf['DATABASE']['Database']
+        )
+    logger.debug(dbc)          
     logger.info('Starting Flask server on {} listening on port {}'.format('0.0.0.0', '5000'))
     app.run(host='0.0.0.0', port=5000)
 

@@ -25,9 +25,11 @@ class DbClient:
     vault_client = None
     key_name = None
     mount_point = None
+    username = None
+    password = None
 
-    def __init__(self, uri, prt, uname, pw, db):
-        self.init_db(uri, prt, uname, pw, db)
+    #def __init__(self, uri, prt, uname, pw, db):
+    #    self.init_db(uri, prt, uname, pw, db)
 
     def init_db(self, uri, prt, uname, pw, db):
         self.uri = uri
@@ -55,6 +57,16 @@ class DbClient:
             self.vault_client = hvac.Client(url=addr, token=token)
             self.key_name = key_name
             self.mount_point = path
+            logger.debug("Initialized vault_client: {}".format(self.vault_client))
+
+    def vault_db_auth(self, path):
+        try:
+            resp = self.vault_client.read(path)
+            self.username = resp['data']['username']
+            self.password = resp['data']['password']
+            logger.debug('Retrieved username {} and password {} from Vault.'.format(self.username, self.password))
+        except Exception as e:
+            logger.error('An error occurred reading DB creds from path {}.  Error: {}'.format(path, e))
 
     # the data must be base64ed before being passed to encrypt
     def encrypt(self, value):
