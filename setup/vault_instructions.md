@@ -125,11 +125,11 @@ In this example we have the following table:
 +------------------------+--------------+------+-----+---------+----------------+
 ```
 
-We want our applications to be able to use this data as necessary, but for the data in the database to be protected as discussed previously.  We want to encrypt the birth_date, social_security_number, address, and salary fields.  
+We want our applications to be able to use this data as necessary, but for the data in the database to be protected as discussed previously.  In our example, we want to encrypt the birth_date, social_security_number, address, and salary fields.  
 
 N.B. The output of an encrypted record may consist of more characters than the input string.  For instance, if one encrypts something like a social security number (123-45-6789) the output would look something like:
 ```
 vault:v1:7gJQbolfH6KgyxJ4VnkGbO7YTig5waMq96IBGKJRH37T
 ```
 
-Database schemas may need to be adjusted to account for the longer values.  For instance, if you configured your database with a value of varchar(11) then the resultant encrypted value would not fit in that column. 
+Database schemas may need to be adjusted to account for the longer values.  For instance, if you configured your database with a value of varchar(11) then the resultant encrypted value would not fit in that column.

@@ -105,6 +105,7 @@ if __name__ == '__main__':
 
     if conf.has_section('VAULT'):
       if conf['VAULT']['Enabled'].lower() == 'true':
+        logger.info('Vault is enabled...')
         dbc.init_vault(addr=conf['VAULT']['Address'], token=conf['VAULT']['Token'], path=conf['VAULT']['KeyPath'], key_name=conf['VAULT']['KeyName'])
         if conf['VAULT']['DynamicDBCreds'].lower() == 'true':
           logger.debug('db_auth')
@@ -115,15 +116,16 @@ if __name__ == '__main__':
           pw=dbc.password, 
           db=conf['DATABASE']['Database']
           )
-      else:
+      
+      if dbc.is_initialized is False: # we didn't use dynamic credentials
+        logger.info('Using DB credentials from config.ini...')
         dbc.init_db(
           uri=conf['DATABASE']['Address'], 
           prt=conf['DATABASE']['Port'], 
           uname=conf['DATABASE']['User'], 
           pw=conf['DATABASE']['Password'], 
           db=conf['DATABASE']['Database']
-        )
-    logger.debug(dbc)          
+        )  
     logger.info('Starting Flask server on {} listening on port {}'.format('0.0.0.0', '5000'))
     app.run(host='0.0.0.0', port=5000)
 

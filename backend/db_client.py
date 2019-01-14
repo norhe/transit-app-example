@@ -27,6 +27,7 @@ class DbClient:
     mount_point = None
     username = None
     password = None
+    is_initialized = False
 
     #def __init__(self, uri, prt, uname, pw, db):
     #    self.init_db(uri, prt, uname, pw, db)
@@ -46,6 +47,7 @@ class DbClient:
         cursor.execute(customer_table)
         self.conn.commit()
         cursor.close()
+        self.is_initialized = True
 
     # Later we will check to see if this is None to see whether to use Vault or not
     def init_vault(self, addr, token, path, key_name):
