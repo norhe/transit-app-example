@@ -4,4 +4,4 @@ This repo seeks to provide an example that demonstrates how to protect sensitive
 
 This repo contains a simple CRUD app that can integrate with Vault to protect customer records.
 
-To be continued...
+To be continued...  For now look in the setup directory.
