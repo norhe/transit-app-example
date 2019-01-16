@@ -18,6 +18,13 @@ CREATE TABLE IF NOT EXISTS `customers` (
     PRIMARY KEY (`cust_no`)
 ) ENGINE=InnoDB;'''
 
+seed_customers = '''
+INSERT IGNORE into customers VALUES 
+  (1, "1/4/87", "Larry", "Johnson", "1/4/19", "450-09-7521", "123 Main St", "85000"),
+  (2, "4/18/34", "Sally", "Ureal", "1/4//19", "304-45-9430", "345 Elm Rd", "450000"),
+  (3, "1/4/87", "Larry", "Johnson", "1/11/19", "450-09-7521", "678 Creek Ln", "54000");
+'''
+
 logger = logging.getLogger(__name__)
 
 class DbClient:
@@ -45,6 +52,7 @@ class DbClient:
         cursor.execute('USE `{}`'.format(db))
         logger.info("Preparing customer table...")
         cursor.execute(customer_table)
+        cursor.execute(seed_customers)
         self.conn.commit()
         cursor.close()
         self.is_initialized = True
@@ -149,6 +157,32 @@ class DbClient:
                 r['address'] = row[6]
                 r['salary'] = row[7]
                 if self.vault_client is not None and not raw:
+                    r['birth_date'] = self.decrypt(r['birth_date'])
+                    r['ssn'] = self.decrypt(r['ssn'])
+                    r['address'] = self.decrypt(r['address'])
+                    r['salary'] = self.decrypt(r['salary'])
+                results.append(r)
+            except Exception as e:
+                logger.error('There was an error retrieving the record: {}'.format(e))
+        return results
+
+    def get_customer_record(self, id):
+        statement = 'SELECT * FROM `customers` WHERE cust_no = {}'.format(id)
+        cursor = self.conn.cursor()
+        self._execute_sql(statement, cursor)
+        results = []
+        for row in cursor:
+            try:
+                r = {}
+                r['customer_number'] = row[0]
+                r['birth_date'] = row[1]
+                r['first_name'] = row[2]
+                r['last_name'] = row[3]
+                r['create_date'] = row[4]
+                r['ssn'] = row[5]
+                r['address'] = row[6]
+                r['salary'] = row[7]
+                if self.vault_client is not None:
                     r['birth_date'] = self.decrypt(r['birth_date'])
                     r['ssn'] = self.decrypt(r['ssn'])
                     r['address'] = self.decrypt(r['address'])

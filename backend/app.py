@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, abort
 
 from datetime import datetime
 import configparser
@@ -36,6 +36,16 @@ def get_customers():
     customers = dbc.get_customer_records()
     logger.debug('Customers: {}'.format(customers))
     return json.dumps(customers)
+
+@app.route('/customer', methods=['GET'])
+def get_customer():
+    global dbc
+    cust_no = request.args.get('cust_no')
+    if not cust_no:
+      return '<html><body>Error: cust_no is a required argument for the customer endpoint.</body></html>', 500
+    record = dbc.get_customer_record(cust_no)
+    #logger.debug('Request: {}'.format(request))
+    return json.dumps(record)
 
 @app.route('/customers', methods=['POST'])
 def create_customer():
@@ -93,6 +103,7 @@ def update_submit():
     return render_template('records.html', results = json.loads(records), record_updated = True)
 
 if __name__ == '__main__':
+  logger.warn('In Main...')
   conf = read_config()
   
   logging.basicConfig(
