@@ -52,6 +52,9 @@ def create_customer():
     global dbc
     logging.debug("Form Data: {}".format(dict(request.form)))
     customer = {k:v for (k,v) in dict(request.form).items()}
+    for k,v in customer.items():
+      if type(v) is list:
+        customer[k] = v[0]
     logging.debug('Customer: {}'.format(customer))
     if 'create_date' not in customer.keys():
       customer['create_date'] = datetime.now().isoformat()
